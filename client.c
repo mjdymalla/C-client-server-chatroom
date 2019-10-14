@@ -19,13 +19,13 @@ int main(int argc, char *argv[]) {
     int network_socket, port;
     char buffer[MAXDATASIZE];
     struct hostent *he;
-    ;
-
+    
     // CHECK COMMAND LINE ARGUMENTS
     if (argc < 2) {
         fprintf(stderr, "usage: client hostname\n");
         exit(1);
     }
+
     if (argc > 2) {
         port = atoi(argv[2]);
     } else port = default_port;
@@ -35,6 +35,7 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
+    // CHECK SOCKET CREATION
     if ((network_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         perror("socket");
         exit(1);
