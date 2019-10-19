@@ -12,14 +12,16 @@
 
 #define BACKLOG 10
 
+void *thread_data(void *vargp) {
+    printf("Server: thread created for client connection \n\n");
+    return NULL;    
+}
+
 int main(int argc, char *argv[]) {
 
     // THREAD ATTRIBUTES
-    pthread_t client_thread;
+    pthread_t client_thread; 
     pthread_attr_t attr;
-
-    // SERVER MESSAGE ON CONNECTIONS
-    char server_message[256] = "you have reached the server\n\n";
 
     // DEFINE THE SERVER ADDRESS
     int server_socket, new_socket;
@@ -43,7 +45,7 @@ int main(int argc, char *argv[]) {
 
     // GENERATE END POINT 
     server_address.sin_family = AF_INET;
-    server_address.sin_port = htons(12345);
+    server_address.sin_port = htons(atoi(argv[1]));
     server_address.sin_addr.s_addr = INADDR_ANY;
 
     // BIND THE SOCKET TO OUR SPECIFIED IP AND PORT
@@ -58,25 +60,62 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    printf("server starts listening on port %d\n", server_address.sin_port);
+    printf("Server: listening on port %d\n\n", server_address.sin_port);
 
     // CREATE MAIN ACCEPT LOOP
     while(1) {
         sin_size = sizeof(struct sockaddr_in);
-        if ((new_socket = accept(server_socket, (struct sockaddr *)&connector_address, &sin_size)) == -1) {
+        new_socket = accept(server_socket, (struct sockaddr *)&connector_address, &sin_size);
+        pid_t current_process;
+        if (new_socket == -1) {
             perror("accept");
             continue;
         }
-        printf("server: got connection from %s\n", inet_ntoa(connector_address.sin_addr));
 
+        printf("Server: got connection from %s\n\n", inet_ntoa(connector_address.sin_addr));
         
+        // CREATE NEW PROCESS FOR CLIENT
+        if ((current_process = fork()) == -1)
+        {
+            close(new_socket);
+        }
+        else if (current_process == 0) {  
+            int id = getpid(); 
+            printf("New client process - ID: %d - Server: %d\n\n", id, getppid()); 
+            char message[256] = "Welcome to the server! Your Client ID is: \n\n";
+            write(new_socket, &message, sizeof(message)); 
+            while (current_process == 0) {
+                char client_message[2000] = "";
+                recv(new_socket, &client_message, sizeof(client_message), 0);
+                printf("message from Client %d - %s\n", id, client_message);
+                if (client_message == "exit") {
+                    close(new_socket);
+                    break;
+                }
+            }  
+        }
+        
+        
+        
+        
+        
+        
+            
+        
+        // CREATE A THREAD FOR CLIENT
+        //pthread_attr_t attr;
+        //pthread_attr_init(&attr);
+        //pthread_create(&client_thread, &attr, send_data, &new_socket);
+        //pthread_join(client_thread, NULL);
+        
+        
+        
+        
+
         
     }
 
+    return 0;
     
-
-    // CLOSE THE SOCKET
-    close(new_socket);
-
-    
+      
 }

@@ -59,10 +59,17 @@ int main(int argc, char *argv[]) {
     recv(network_socket, &server_response, sizeof(server_response), 0);
 
     // PRINT OUT SERVERS RESPONSE
-    printf("The server sent the data: %s\n", server_response);
+    printf("%s\n", server_response);
+
+    while(1) {
+        char message[2560] = "";
+        printf("type a message:");
+        fgets(message, 100, stdin);
+        send(network_socket, &message, sizeof(&message), 0);
+    }
 
     // AND THEN CLOSE THE SOCKET
     close(network_socket);
 
-    return 0;
+    
 }
