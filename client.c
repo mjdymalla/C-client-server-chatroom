@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
 
     while(1) {
         char message[2560] = "";
-        printf("type a message:");
+        printf("type a message: ");
         fgets(message, 100, stdin);
         send(network_socket, &message, sizeof(&message), 0);
     }

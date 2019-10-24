@@ -75,26 +75,20 @@ int main(int argc, char *argv[]) {
         printf("Server: got connection from %s\n\n", inet_ntoa(connector_address.sin_addr));
         
         // CREATE NEW PROCESS FOR CLIENT
-        if ((current_process = fork()) == -1)
-        {
+        if ((current_process = fork()) == -1) {
             close(new_socket);
         }
         else if (current_process == 0) {  
             int id = getpid(); 
-            printf("New client process - ID: %d - Server: %d\n\n", id, getppid()); 
+            printf("New process - Client ID: %d - Server: %d\n\n", id, getppid()); 
             char message[256] = "Welcome to the server! Your Client ID is: \n\n";
-            write(new_socket, &message, sizeof(message)); 
-            while (current_process == 0) {
-                char client_message[2000] = "";
-                recv(new_socket, &client_message, sizeof(client_message), 0);
-                printf("message from Client %d - %s\n", id, client_message);
-                if (client_message == "exit") {
-                    close(new_socket);
-                    break;
-                }
-            }  
+            write(new_socket, &message, sizeof(message));      
         }
-        
+        while (current_process == 0) {
+            char client_message[256] = "";
+            recv(new_socket, &client_message, sizeof(client_message), 0);
+            printf("message from Client ID: %d - %s\n", getpid(), client_message);    
+        }
         
         
         
